@@ -3,7 +3,7 @@ channels:
   - pytorch
   - nvidia
 dependencies:
-  - python=3.12
+  - python=3.11
   - pytorch=2.4
   - torchvision
   - torchaudio
