@@ -1,4 +1,5 @@
 import os
+import signal
 import time
 import threading
 import json
@@ -351,6 +352,8 @@ class TranscriptionServer:
             host,
             port
         ) as server:
+            logging.info(f"Server started at {host}:{port}")
+            self._server = server
             server.serve_forever()
 
     def voice_activity(self, websocket, frame_np):
@@ -392,6 +395,18 @@ class TranscriptionServer:
         """
         if self.client_manager.get_client(websocket):
             self.client_manager.remove_client(websocket)
+
+    def stop(self):
+        """
+        Stops the transcription server and cleans up resources.
+
+        This method stops the server and cleans up any resources associated with the server and its clients.
+        """
+        if hasattr(self, "_server"):
+            self._server.shutdown()
+        for websocket in self.client_manager.clients.keys():
+            self.cleanup(websocket)
+        self.client_manager = ClientManager()
 
 
 class ServeClientBase(object):
@@ -1132,6 +1147,13 @@ def main():
 
     from whisper_live.server import TranscriptionServer
     server = TranscriptionServer()
+
+    def stop_server(sig, frame):
+        print("Stopping server")
+        server.stop()
+
+    signal.signal(signal.SIGINT, stop_server)
+
     server.run(
         args.bind,
         port=args.port,
