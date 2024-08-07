@@ -1,0 +1,11 @@
+name: WhisperLive
+channels:
+  - pytorch
+  - nvidia
+dependencies:
+  - python=3.12
+  - pytorch=2.4
+  - torchvision
+  - torchaudio
+  - pytorch-cuda=12.4
+  - pip
